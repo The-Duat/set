@@ -40,6 +40,20 @@ local function getNavKey()
     return key
 end
 
+local function getCursorPosition()
+    io.write("\027[s")  -- Save cursor position
+    io.write("\027[6n") -- Request cursor position
+    io.flush()
+    local response = io.read("*a") -- Read the response
+    local _, _, row, col = string.find(response, "\027%[(%d+);(%d+)R")
+    io.write("\027[u")  -- Restore cursor position
+    io.flush()
+    return {
+	    ["x"] = tonumber(row),
+	    ["y"] = tonumber(col)
+    }
+end
+
 
 
 local SCREENS = {} -- Table holding all screens.
@@ -93,22 +107,27 @@ local function drawScreen(id)
     print(" ")
 end
 
-local function writeOutput(txt)
+local function writeOutput(txt, mode)
     local text = tostring(txt)
     local width = #text + 3
     local hyphens = ""
     for i = 0, width-2, 1 do
         hyphens = hyphens .. "─"
     end
-    print("┌" .. hyphens .. "┐")
-    print("│ " .. text .. " │")
-    print("└" .. hyphens .. "┘")
+
+    if mode == 1 then
+	print("┌" .. hyphens .. "┐")
+    	print("│ " .. text .. " │")
+    	print("└" .. hyphens .. "┘")
+    elseif mode == 2 then
+        print("    │ " .. text)
+    end
 end
 
 
 
-set.write = function(text)
-    writeOutput(text)
+set.write = function(text, mode)
+    writeOutput(text, mode)
 end
 
 set.makeScreen = function(id, title, buttons)
