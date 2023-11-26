@@ -15,6 +15,12 @@ set.makeScreen(
 	{"say hello", function()
 		set.write("hello", 2)
 	end},
+    {"say dale gribble", function()
+        set.write("SAYING G", 1)
+		for i = 1, 10, 1 do
+            set.write("dale gribble", 2)
+        end
+	end},
         {"screen 2", function()
             set.setScreen("screen2")
         end}

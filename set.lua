@@ -54,12 +54,18 @@ local function getCursorPosition()
     }
 end
 
+local function move(x, y)
+    io.write(string.format("\027[%d;%dH", y, x))
+end
+
 
 
 local SCREENS = {} -- Table holding all screens.
 local CURRENTSCREEN = "main" -- Currently active screen
 local BUTTONSELECT = 1 -- Currently active button on screen
 local SCREENHISTORY = {"main"} -- Screen view history
+
+local lastusedwidth = 0 -- Weird data used for writing subtext boxes.
 
 --[=[
     Template screen look and function usage
@@ -76,28 +82,19 @@ local SCREENHISTORY = {"main"} -- Screen view history
 local function drawScreen(id)
     local screen = SCREENS[id]
     x("clear")
+    print(screen.title)
     local width = 0
     for _,i in pairs(screen.buttons) do
         if #i[1] > width then
             width = #i[1]
         end
     end
-    if #screen.title > width then
-	    width = #screen.title
-    end
     width = width + 5
     local hyphens = ""
     for i = 0, width, 1 do
         hyphens = hyphens .. "─"
     end
-    local titlepaddingcount = width-2 - #screen.title
-    local titlepadding = ""
-    for i = 0, titlepaddingcount, 1 do
-	    titlepadding = titlepadding .. " "
-    end
-    print("╭" .. hyphens .. "╮")
-    print("│" .. screen.title .. titlepadding .. "  │")
-    print("├" .. hyphens .. "┤")
+    print("┌" .. hyphens .. "┐")
     local i = 1
     while i <= #screen.buttons do
         local paddingcount = width-4 - #screen.buttons[i][1]
@@ -114,23 +111,29 @@ local function drawScreen(id)
     end
     print("└" .. hyphens .. "┘")
     print(" ")
+    lastusedwidth = 0
 end
 
 local function writeOutput(txt, mode)
     local text = tostring(txt)
-    local width = #text + 3
+    local width = #text + 4
     local hyphens = ""
-    for i = 0, width-2, 1 do
+    for i = 1, width-2, 1 do
         hyphens = hyphens .. "─"
     end
-
     if mode == 1 then
-	print("┌" .. hyphens .. "┐")
+	    print("┌" .. hyphens .. "┐")
     	print("│ " .. text .. " │")
     	print("└" .. hyphens .. "┘")
     elseif mode == 2 then
-        print("    │ " .. text)
+        local finalsubtext = ""
+        if lastusedwidth ~= 0 then
+            local x, y = getCursorPosition()
+            move(5, y-1)
+            print("\027[K")
+        end
     end
+    lastusedwidth = width
 end
 
 
