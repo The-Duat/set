@@ -76,19 +76,28 @@ local SCREENHISTORY = {"main"} -- Screen view history
 local function drawScreen(id)
     local screen = SCREENS[id]
     x("clear")
-    print(screen.title)
     local width = 0
     for _,i in pairs(screen.buttons) do
         if #i[1] > width then
             width = #i[1]
         end
     end
+    if #screen.title > width then
+	    width = #screen.title
+    end
     width = width + 5
     local hyphens = ""
     for i = 0, width, 1 do
         hyphens = hyphens .. "─"
     end
-    print("┌" .. hyphens .. "┐")
+    local titlepaddingcount = width-2 - #screen.title
+    local titlepadding = ""
+    for i = 0, titlepaddingcount, 1 do
+	    titlepadding = titlepadding .. " "
+    end
+    print("╭" .. hyphens .. "╮")
+    print("│" .. screen.title .. titlepadding .. "  │")
+    print("├" .. hyphens .. "┤")
     local i = 1
     while i <= #screen.buttons do
         local paddingcount = width-4 - #screen.buttons[i][1]
